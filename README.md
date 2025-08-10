@@ -13,8 +13,8 @@ python enviroment
 для его создания 
 
 hostname pialash.local
-login pi
-password alash
+login alashed
+password alashed
 
 wifi AlashElectronics
 password 28071917
