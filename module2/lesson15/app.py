@@ -31,16 +31,16 @@ def index():
 def get_sensor_data():
     # Считываем данные с акселерометра
     acceleration = mpu.acceleration
-    
+
     # Считываем данные с гироскопа
     gyro = mpu.gyro
-    
+
     # Считываем температуру
     temperature = mpu.temperature
-    
+
     # Вычисляем углы наклона
     roll, pitch = calculate_tilt_angles(acceleration[0], acceleration[1], acceleration[2])
-    
+
     # Формируем JSON с данными
     data = {
         'acceleration': {
@@ -59,7 +59,7 @@ def get_sensor_data():
             'pitch': round(pitch, 2)
         }
     }
-    
+
     return jsonify(data)
 
 if __name__ == '__main__':

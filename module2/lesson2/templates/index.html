@@ -28,12 +28,12 @@
 </head>
 <body>
     <h1>Управление светодиодом</h1>
-    
+
     <p>Нажмите на кнопки, чтобы включить или выключить светодиод:</p>
-    
+
     <a href="/on" class="button">Включить</a>
     <a href="/off" class="button button-off">Выключить</a>
-    
+
     {% if status %}
     <p>Статус: {{ status }}</p>
     {% endif %}

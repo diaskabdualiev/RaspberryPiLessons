@@ -40,15 +40,15 @@
 <body>
     <div class="container">
         <h1>Управление сервоприводом</h1>
-        
+
         <div class="slider-container">
             <input type="range" min="0" max="180" value="90" id="angle-slider">
         </div>
-        
+
         <div class="angle-display">
             Угол: <span id="angle-value">90</span>°
         </div>
-        
+
         <div class="buttons">
             <button onclick="setAngle(0)">0°</button>
             <button onclick="setAngle(90)">90°</button>
@@ -59,7 +59,7 @@
     <script>
         const slider = document.getElementById('angle-slider');
         const angleValue = document.getElementById('angle-value');
-        
+
         // Инициализация значения слайдера при загрузке страницы
         window.onload = function() {
             fetch('/get_angle')
@@ -69,24 +69,24 @@
                     angleValue.textContent = data.angle;
                 });
         };
-        
+
         // Обновление значения при перемещении слайдера
         slider.oninput = function() {
             angleValue.textContent = this.value;
         };
-        
+
         // Отправка нового значения угла на сервер при отпускании слайдера
         slider.onchange = function() {
             sendAngle(this.value);
         };
-        
+
         // Функция для установки фиксированного угла кнопками
         function setAngle(angle) {
             slider.value = angle;
             angleValue.textContent = angle;
             sendAngle(angle);
         }
-        
+
         // Отправка угла на сервер
         function sendAngle(angle) {
             fetch('/set_angle', {

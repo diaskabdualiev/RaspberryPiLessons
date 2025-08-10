@@ -8,7 +8,7 @@ import time
 app = Flask(__name__)
 
 # Инициализация PWM на GPIO 18
-pwm = pwmio.PWMOut(board.D19, duty_cycle=2 ** 15, frequency=50)
+pwm = pwmio.PWMOut(board.D18, duty_cycle=2 ** 15, frequency=50)
 
 # Создание объекта сервопривода
 my_servo = servo.Servo(pwm, min_pulse=750, max_pulse=2250)
@@ -29,17 +29,17 @@ def index():
 @app.route('/set_angle', methods=['POST'])
 def set_angle():
     global current_angle
-    
+
     data = request.get_json()
     angle = int(data.get('angle', 90))
-    
+
     # Ограничиваем угол от 0 до 180
     angle = max(0, min(180, angle))
-    
+
     with servo_lock:
         my_servo.angle = angle
         current_angle = angle
-    
+
     return jsonify({"status": "success", "angle": angle})
 
 @app.route('/get_angle', methods=['GET'])

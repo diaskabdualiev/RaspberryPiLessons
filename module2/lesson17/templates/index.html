@@ -85,65 +85,65 @@
 <body>
     <div class="container">
         <h1>Управление LCD дисплеем</h1>
-        
+
         <!-- Визуализация LCD дисплея -->
         <div class="lcd-display">
             <div>{{ line1 if line1 else '                ' }}</div>
             <div>{{ line2 if line2 else '                ' }}</div>
         </div>
-        
+
         <form action="/display" method="post">
             <div class="form-group">
                 <label for="line1">Текст для первой строки:</label>
                 <input type="text" id="line1" name="line1" maxlength="16" value="{{ line1 }}">
             </div>
-            
+
             <div class="form-group">
                 <label for="line2">Текст для второй строки:</label>
                 <input type="text" id="line2" name="line2" maxlength="16" value="{{ line2 }}">
             </div>
-            
+
             <div class="buttons">
                 <button type="submit" class="send-btn">Отправить на дисплей</button>
                 <button type="button" class="clear-btn" onclick="clearDisplay()">Очистить дисплей</button>
             </div>
         </form>
-        
+
         <!-- Форма для очистки дисплея -->
         <form id="clear-form" action="/clear" method="post" style="display: none;">
         </form>
-        
+
         {% if message %}
         <div class="message success">
             {{ message }}
         </div>
         {% endif %}
     </div>
-    
+
     <script>
         function clearDisplay() {
             document.getElementById('clear-form').submit();
         }
-        
+
         // Ограничение ввода 16 символами и обновление дисплея при вводе
         document.getElementById('line1').addEventListener('input', function() {
             updateDisplayPreview();
         });
-        
+
         document.getElementById('line2').addEventListener('input', function() {
             updateDisplayPreview();
         });
-        
+
         function updateDisplayPreview() {
             var line1 = document.getElementById('line1').value;
             var line2 = document.getElementById('line2').value;
-            
+
             // Отображаем линии на виртуальном дисплее
             var displayLines = document.querySelectorAll('.lcd-display div');
             displayLines[0].textContent = line1.padEnd(16, ' ');
             displayLines[1].textContent = line2.padEnd(16, ' ');
         }
-        
+
         // Инициализируем отображение при загрузке страницы
         updateDisplayPreview();
     </script>

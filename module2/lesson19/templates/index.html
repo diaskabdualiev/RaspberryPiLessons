@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <title>Pi Live Cam</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        :root{--bg:#0e1117;--fg:#e6edf3;--accent:#238636;
+              --accent-hover:#2ea043;--card:#161b22;font-size:16px;}
+        body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);
+             color:var(--fg);display:flex;flex-direction:column;
+             align-items:center;min-height:100vh;}
+        h1{margin:1rem 0;font-size:1.5rem;}
+        #stream{max-width:90%;border:4px solid var(--card);
+                border-radius:12px;box-shadow:0 0 10px rgba(0,0,0,.6);}
+        .controls{margin:1.5rem 0;display:flex;gap:.5rem;flex-wrap:wrap;
+                  justify-content:center;}
+        button{background:var(--accent);color:#fff;border:none;
+               border-radius:8px;padding:.6rem 1.2rem;cursor:pointer;
+               font-size:1rem;transition:background .2s;}
+        button:hover{background:var(--accent-hover);}
+        input{width:5rem;padding:.4rem;border-radius:6px;border:none;}
+        footer{margin-top:auto;padding:1rem;font-size:.8rem;opacity:.6;}
+    </style>
+</head>
+<body>
+    <h1>📡 Live-трансляция с Raspberry Pi Camera</h1>
+
+    <img id="stream" src="/video_feed" alt="live stream">
+
+    <div class="controls">
+        <button onclick="rotate(-90)">⟲ −90°</button>
+        <button onclick="rotate(90)">⟳ +90°</button>
+
+        <input id="deg" type="number" value="0" step="1">°
+        <button onclick="rotateCustom()">↻ Повернуть</button>
+
+        <button onclick="capture()">📸 Снимок</button>
+    </div>
+
+    <footer>RGB888 → MJPEG | Flask & Picamera2</footer>
+
+    <script>
+        function rotate(angle){
+            fetch('/rotate',{method:'POST',
+              headers:{'Content-Type':'application/x-www-form-urlencoded'},
+              body:'deg='+angle});
+        }
+        function rotateCustom(){
+            const v=document.getElementById('deg').value||0;
+            rotate(parseInt(v,10));
+        }
+        function capture(){
+            fetch('/capture')
+              .then(r=>r.blob())
+              .then(b=>{
+                  const url=URL.createObjectURL(b);
+                  const l=document.createElement('a');
+                  l.href=url;
+                  l.download='snapshot_'+Date.now()+'.jpg';
+                  document.body.appendChild(l);
+                  l.click();
+                  l.remove();
+                  URL.revokeObjectURL(url);
+              });
+        }
+    </script>
+</body>
+</html>

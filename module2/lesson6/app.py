@@ -21,23 +21,23 @@ last_update = "Никогда"
 # Функция для обновления данных с датчика
 def update_sensor_data():
     global temperature, humidity, status, last_update
-    
+
     try:
         # Считываем температуру и влажность
         temperature = dht_device.temperature
         humidity = dht_device.humidity
-        
+
         # Обновляем статус и время
         status = "Данные получены успешно"
         last_update = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        
+
         return True
-    
+
     except RuntimeError as e:
         # Ошибки чтения датчика случаются довольно часто, особенно на DHT11
         status = f"Ошибка чтения: {e}"
         return False
-    
+
     except Exception as e:
         status = f"Критическая ошибка: {e}"
         return False
@@ -47,12 +47,12 @@ def update_sensor_data():
 def index():
     # Пытаемся обновить данные с датчика
     update_sensor_data()
-    
+
     # Рендерим шаблон с текущими данными
     return render_template(
-        'index.html', 
-        temperature=temperature, 
-        humidity=humidity, 
+        'index.html',
+        temperature=temperature,
+        humidity=humidity,
         status=status,
         last_update=last_update
     )
@@ -77,12 +77,12 @@ if __name__ == '__main__':
     # Регистрируем функцию очистки
     import atexit
     atexit.register(cleanup)
-    
+
     # Запускаем фоновое обновление данных в отдельном потоке
     import threading
     sensor_thread = threading.Thread(target=background_update, daemon=True)
     sensor_thread.start()
-    
+
     try:
         # Запускаем веб-сервер
         print("Веб-сервер запущен на порту 8080. Нажмите Ctrl+C для завершения.")

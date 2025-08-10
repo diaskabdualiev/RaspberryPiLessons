@@ -18,11 +18,11 @@ buzzer_active = False
 # Функция для подачи звукового сигнала
 def beep(duration):
     global status, buzzer_active
-    
+
     # Предотвращаем одновременное выполнение нескольких сигналов
     if buzzer_active:
         return
-    
+
     buzzer_active = True
     buzzer_pin.value = True
     status = "Зуммер ВКЛ"
@@ -34,25 +34,25 @@ def beep(duration):
 # Функция для запуска двух сигналов
 def double_beep():
     global status, buzzer_active
-    
+
     if buzzer_active:
         return
-    
+
     buzzer_active = True
-    
+
     # Первый сигнал
     buzzer_pin.value = True
     status = "Зуммер ВКЛ (1/2)"
     time.sleep(0.2)
     buzzer_pin.value = False
     time.sleep(0.2)
-    
+
     # Второй сигнал
     buzzer_pin.value = True
     status = "Зуммер ВКЛ (2/2)"
     time.sleep(0.2)
     buzzer_pin.value = False
-    
+
     status = "Ожидание"
     buzzer_active = False
 
@@ -64,18 +64,18 @@ def index():
 @app.route('/beep/<beep_type>')
 def trigger_beep(beep_type):
     thread = None
-    
+
     if beep_type == 'short':
         thread = threading.Thread(target=beep, args=(0.2,))
     elif beep_type == 'double':
         thread = threading.Thread(target=double_beep)
     elif beep_type == 'long':
         thread = threading.Thread(target=beep, args=(1.0,))
-    
+
     if thread:
         thread.daemon = True
         thread.start()
-    
+
     return redirect(url_for('index'))
 
 # Функция очистки при завершении
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     # Регистрируем функцию очистки
     import atexit
     atexit.register(cleanup)
-    
+
     try:
         # Запускаем веб-сервер
         print("Веб-сервер запущен. Нажмите Ctrl+C для завершения.")

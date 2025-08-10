@@ -11,11 +11,11 @@
             padding: 20px;
             text-align: center;
         }
-        
+
         h1 {
             margin-bottom: 30px;
         }
-        
+
         .container {
             display: flex;
             justify-content: space-around;
@@ -23,7 +23,7 @@
             max-width: 1000px;
             margin: 0 auto;
         }
-        
+
         .joystick-container {
             width: 400px;
             height: 400px;
@@ -33,7 +33,7 @@
             margin: 0 auto 20px;
             background: #f5f5f5;
         }
-        
+
         .joystick-position {
             width: 50px;
             height: 50px;
@@ -46,7 +46,7 @@
             top: 50%;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        
+
         .joystick-center {
             width: 10px;
             height: 10px;
@@ -57,7 +57,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
-        
+
         .joystick-outer {
             width: 320px;
             height: 320px;
@@ -68,7 +68,7 @@
             top: 50%;
             transform: translate(-50%, -50%);
         }
-        
+
         .info-panel {
             width: 400px;
             margin: 0 auto;
@@ -78,17 +78,17 @@
             background: #f9f9f9;
             text-align: left;
         }
-        
+
         .info-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
         }
-        
+
         .info-label {
             font-weight: bold;
         }
-        
+
         .button-state {
             padding: 5px 10px;
             border-radius: 5px;
@@ -97,17 +97,17 @@
             width: 80px;
             text-align: center;
         }
-        
+
         .btn-pressed {
             background-color: #4CAF50;
             color: white;
         }
-        
+
         .btn-released {
             background-color: #f44336;
             color: white;
         }
-        
+
         .btn-calibrate {
             padding: 10px 20px;
             font-size: 16px;
@@ -118,11 +118,11 @@
             cursor: pointer;
             margin-top: 20px;
         }
-        
+
         .btn-calibrate:hover {
             background-color: #0056b3;
         }
-        
+
         .direction-indicator {
             font-weight: bold;
             font-size: 20px;
@@ -132,7 +132,7 @@
 </head>
 <body>
     <h1>Визуализация джойстика</h1>
-    
+
     <div class="container">
         <div class="joystick-visual">
             <div class="joystick-container">
@@ -140,10 +140,10 @@
                 <div class="joystick-center"></div>
                 <div class="joystick-position" id="joystick-knob"></div>
             </div>
-            
+
             <div class="direction-indicator" id="direction">Центр</div>
         </div>
-        
+
         <div class="info-panel">
             <h2>Данные джойстика</h2>
             <div class="info-row">
@@ -164,9 +164,9 @@
             </div>
         </div>
     </div>
-    
+
     <button class="btn-calibrate" id="calibrate-btn">Калибровать джойстик</button>
-    
+
     <script>
         // Элементы DOM
         const joystickKnob = document.getElementById('joystick-knob');
@@ -176,22 +176,22 @@
         const directionIndicator = document.getElementById('direction');
         const buttonState = document.getElementById('button-state');
         const calibrateBtn = document.getElementById('calibrate-btn');
-        
+
         // Функция обновления положения джойстика
         function updateJoystick(x, y, direction, button) {
             // Обновляем визуальное положение джойстика
             const posX = 50 + (x / 2); // Преобразуем от -100..100 к 0..100 (процент)
             const posY = 50 + (y / 2); // Преобразуем от -100..100 к 0..100 (процент)
-            
+
             joystickKnob.style.left = posX + '%';
             joystickKnob.style.top = posY + '%';
-            
+
             // Обновляем текстовую информацию
             xValue.textContent = x + '%';
             yValue.textContent = y + '%';
             directionValue.textContent = direction;
             directionIndicator.textContent = direction;
-            
+
             // Обновляем состояние кнопки
             if (button) {
                 buttonState.textContent = 'Нажата';
@@ -201,7 +201,7 @@
                 buttonState.className = 'button-state btn-released';
             }
         }
-        
+
         // Функция для опроса сервера на наличие новых данных
         function fetchJoystickData() {
             fetch('/joystick')
@@ -211,12 +211,12 @@
                 })
                 .catch(error => console.error('Ошибка получения данных джойстика:', error));
         }
-        
+
         // Калибровка джойстика
         calibrateBtn.addEventListener('click', function() {
             calibrateBtn.disabled = true;
             calibrateBtn.textContent = 'Калибровка...';
-            
+
             fetch('/calibrate')
                 .then(response => response.json())
                 .then(data => {
@@ -230,7 +230,7 @@
                     calibrateBtn.textContent = 'Калибровать джойстик';
                 });
         });
-        
+
         // Опрашиваем сервер каждые 100 мс для получения обновленных данных
         setInterval(fetchJoystickData, 100);
     </script>

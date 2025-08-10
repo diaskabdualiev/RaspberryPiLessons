@@ -35,25 +35,25 @@ def map_to_percent(value, in_min=0, in_max=26000):
 # Функция опроса АЦП в отдельном потоке
 def adc_polling():
     global current_value, current_voltage, current_percent
-    
+
     try:
         while True:
             # Считываем значение с потенциометра
             raw_value = potentiometer.value
             voltage = potentiometer.voltage
-            
+
             # Преобразуем в проценты
             percent = map_to_percent(raw_value)
-            
+
             # Обновляем глобальные переменные
             with lock:
                 current_value = raw_value
                 current_voltage = voltage
                 current_percent = percent
-            
+
             # Задержка для стабилизации показаний
             time.sleep(0.1)
-            
+
     except Exception as e:
         print(f"Ошибка в потоке опроса АЦП: {e}")
 
@@ -80,6 +80,6 @@ def start_adc_thread():
 if __name__ == '__main__':
     # Запускаем поток для опроса АЦП
     start_adc_thread()
-    
+
     # Запускаем веб-сервер Flask
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)

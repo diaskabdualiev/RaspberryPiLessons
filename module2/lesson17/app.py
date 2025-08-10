@@ -18,19 +18,19 @@ def display_text():
     # Получаем текст из формы
     line1 = request.form['line1']
     line2 = request.form['line2']
-    
+
     # Очищаем дисплей
     lcd.clear()
-    
+
     # Выводим первую строку
     lcd.cursor_pos = (0, 0)  # Первая строка
     lcd.write_string(line1[:16])  # Ограничиваем 16 символами
-    
+
     # Выводим вторую строку
     lcd.cursor_pos = (1, 0)  # Вторая строка
     lcd.write_string(line2[:16])  # Ограничиваем 16 символами
-    
-    return render_template('index.html', 
+
+    return render_template('index.html',
                            message="Текст успешно отправлен на дисплей!",
                            line1=line1,
                            line2=line2)
@@ -48,10 +48,10 @@ if __name__ == '__main__':
         lcd.write_string("LCD Ready!")
         lcd.cursor_pos = (1, 0)
         lcd.write_string("Web app started")
-        
+
         # Запускаем веб-сервер
         app.run(host='0.0.0.0', port=5000, debug=True)
-        
+
     except KeyboardInterrupt:
         # При выходе очищаем дисплей
         lcd.clear()

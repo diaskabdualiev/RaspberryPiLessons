@@ -20,23 +20,23 @@ def clear_display():
 def show_rectangle():
     """Отображает прямоугольник по периметру матрицы"""
     clear_display()
-    
+
     # Верхняя и нижняя линии
     for x in range(8):
         display.pixel(x, 0, 1)  # Верхняя линия
         display.pixel(x, 7, 1)  # Нижняя линия
-    
+
     # Левая и правая границы (без углов, чтобы не дублировать)
     for y in range(1, 7):
         display.pixel(0, y, 1)  # Левая граница
         display.pixel(7, y, 1)  # Правая граница
-    
+
     display.show()
 
 def show_heart():
     """Отображает простое сердечко на матрице"""
     clear_display()
-    
+
     # Битовая карта сердечка
     heart = [
         [0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,13 +48,13 @@ def show_heart():
         [0, 0, 0, 1, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0]
     ]
-    
+
     # Вывод сердечка на матрицу
     for y in range(8):
         for x in range(8):
             if heart[y][x] == 1:
                 display.pixel(x, y, 1)
-    
+
     display.show()
 
 def show_animation():
@@ -69,7 +69,7 @@ def show_animation():
 def show_letter(letter, delay=1):
     """Отображает одну букву из заданных шаблонов"""
     clear_display()
-    
+
     # Словарь с битовыми картами букв
     letters = {
         'A': [
@@ -103,7 +103,7 @@ def show_letter(letter, delay=1):
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
     }
-    
+
     # Проверяем, есть ли буква в словаре
     if letter.upper() in letters:
         bitmap = letters[letter.upper()]
@@ -125,34 +125,34 @@ def show_letters_sequence(text="ABC", delay=1):
 # Основная программа
 try:
     print("Запуск демонстрации MAX7219")
-    
+
     # Очистка дисплея
     clear_display()
     time.sleep(0.5)
-    
+
     # Показываем прямоугольник
     print("1. Отображение прямоугольника")
     show_rectangle()
     time.sleep(2)
-    
+
     # Показываем сердечко
     print("2. Отображение сердечка")
     show_heart()
     time.sleep(2)
-    
+
     # Анимация сердечка
     print("3. Анимация мигающего сердечка")
     show_animation()
     time.sleep(1)
-    
+
     # Последовательность букв
     print("4. Показ последовательности букв")
     show_letters_sequence("ABC", 1.5)
-    
+
     # Очищаем дисплей в конце
     clear_display()
     print("Демонстрация завершена")
-    
+
 except KeyboardInterrupt:
     clear_display()
     print("\nПрограмма остановлена пользователем")

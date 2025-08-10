@@ -1,110 +1,85 @@
-from flask import Flask, render_template, jsonify
-import time
-import board
-import digitalio
-import threading
+from flask import Flask, jsonify, render_template
+import digitalio, board, threading, time
 
+# ──────────── GPIO ────────────
+PIN_A = digitalio.DigitalInOut(board.D17)
+PIN_B = digitalio.DigitalInOut(board.D18)
+BTN   = digitalio.DigitalInOut(board.D27)
+
+for pin in (PIN_A, PIN_B, BTN):
+    pin.direction = digitalio.Direction.INPUT
+    pin.pull      = digitalio.Pull.UP      # энкодер «замыкает на GND»
+
+# ──────────── глобальное состояние ────────────
+counter = 0
+direction = "—"
+button_pressed = False
+events = []
+
+_lock = threading.Lock()
+
+# ──────────── квадратурная таблица (Gray) ────────────
+# transition = (prev<<2)|curr  → ±1 / 0 / error
+_STEP_TAB = {
+    0b0001: +1, 0b0010: -1, 0b0100: -1, 0b0111: +1,
+    0b1000: +1, 0b1011: -1, 0b1101: -1, 0b1110: +1,
+}
+
+# ──────────── поток опроса ────────────
+def encoder_worker():
+    global counter, direction, button_pressed, events
+    last_state = (PIN_A.value << 1) | PIN_B.value
+    last_btn   = BTN.value
+    btn_time   = time.monotonic()
+
+    while True:
+        now_state = (PIN_A.value << 1) | PIN_B.value
+        transition = (last_state << 2) | now_state
+        step = _STEP_TAB.get(transition, 0)
+        if step:
+            counter += step
+            direction = "↻" if step > 0 else "↺"
+            with _lock:
+                events.append(f"{direction}  →  {counter}")
+                events[:] = events[-12:]
+        last_state = now_state
+
+        # — антидребезг кнопки (20 мс) —
+        curr_btn = BTN.value
+        if curr_btn != last_btn:
+            btn_time = time.monotonic()
+            last_btn = curr_btn
+        elif not curr_btn and (time.monotonic() - btn_time) > 0.02:
+            # нажатие подтверждено
+            if not button_pressed:
+                button_pressed = True
+                with _lock:
+                    events.append(f"Кнопка: сброс счётчика ({counter}→0)")
+                    counter = 0
+                    events[:] = events[-12:]
+        else:
+            button_pressed = False
+
+        time.sleep(0.001)   # 1 кГц опроса
+
+# ──────────── Flask ────────────
 app = Flask(__name__)
 
-# Инициализация выводов энкодера
-# Выходы A и B энкодера подключены к GPIO17 и GPIO18 соответственно
-pin_a = digitalio.DigitalInOut(board.D17)
-pin_b = digitalio.DigitalInOut(board.D18)
-pin_a.direction = digitalio.Direction.INPUT
-pin_b.direction = digitalio.Direction.INPUT
-pin_a.pull = digitalio.Pull.UP  # Подтяжка к питанию
-pin_b.pull = digitalio.Pull.UP  # Подтяжка к питанию
-
-# Инициализация кнопки энкодера
-button = digitalio.DigitalInOut(board.D27)  # Кнопка на GPIO27
-button.direction = digitalio.Direction.INPUT
-button.pull = digitalio.Pull.UP  # Подтяжка к VCC (кнопка замыкает на GND)
-
-# Глобальные переменные для хранения состояния
-counter = 0
-button_state = False
-last_button_state = False
-last_a_state = pin_a.value
-last_direction = ""
-events = []  # для хранения истории событий
-
-# Блокировка для многопоточного доступа
-lock = threading.Lock()
-
-# Функция для опроса энкодера в отдельном потоке
-def encoder_polling():
-    global counter, button_state, last_button_state, last_a_state, last_direction, events
-    
-    try:
-        print("Роторный энкодер: поворачивайте ручку или нажмите на нее")
-        
-        while True:
-            with lock:
-                # Считываем текущее состояние выводов энкодера
-                a_state = pin_a.value
-                b_state = pin_b.value
-                
-                # Если состояние вывода A изменилось, значит произошло вращение
-                if a_state != last_a_state:
-                    # Определяем направление вращения сравнивая состояния выводов A и B
-                    if b_state != a_state:
-                        direction = "по часовой стрелке"
-                        counter += 1
-                    else:
-                        direction = "против часовой стрелки"
-                        counter -= 1
-                    
-                    # Сохраняем направление и добавляем событие
-                    last_direction = direction
-                    events.append(f"Вращение {direction}, Счетчик: {counter}")
-                    # Ограничиваем историю событий до 10
-                    if len(events) > 10:
-                        events = events[-10:]
-                
-                # Обновляем последнее состояние вывода A
-                last_a_state = a_state
-                
-                # Обработка нажатия кнопки
-                button_state = not button.value  # Инвертируем значение
-                
-                # Проверяем изменение состояния кнопки (обнаружение фронта)
-                if button_state and not last_button_state:
-                    events.append(f"Кнопка нажата! Сброс счетчика с {counter} на 0")
-                    counter = 0
-                
-                # Обновляем последнее состояние кнопки
-                last_button_state = button_state
-            
-            # Небольшая задержка для стабилизации
-            time.sleep(0.01)
-            
-    except Exception as e:
-        print(f"Ошибка в потоке опроса энкодера: {e}")
-
-# Маршрут для главной страницы
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")      # ваш шаблон
 
-# API для получения текущего состояния энкодера
-@app.route('/api/encoder-state')
-def encoder_state():
-    with lock:
-        return jsonify({
-            'counter': counter,
-            'button_state': button_state,
-            'last_direction': last_direction,
-            'events': events
-        })
+@app.route("/api/state")
+def state():
+    with _lock:
+        return jsonify(
+            counter=counter,
+            direction=direction,
+            button=button_pressed,
+            events=list(events),
+        )
 
-# Запуск потока опроса энкодера
-def start_encoder_thread():
-    encoder_thread = threading.Thread(target=encoder_polling, daemon=True)
-    encoder_thread.start()
-
-if __name__ == '__main__':
-    # Запускаем поток для опроса энкодера
-    start_encoder_thread()
-    
-    # Запускаем веб-сервер Flask
-    app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
+# ──────────── запуск ────────────
+if __name__ == "__main__":
+    threading.Thread(target=encoder_worker, daemon=True).start()
+    app.run(host="0.0.0.0", port=5000, threaded=True)

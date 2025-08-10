@@ -11,7 +11,7 @@
             padding: 20px;
             background-color: #f5f5f5;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -20,17 +20,17 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        
+
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
         }
-        
+
         .slider-container {
             margin: 50px 0;
         }
-        
+
         .slider-track {
             height: 30px;
             background-color: #e0e0e0;
@@ -38,7 +38,7 @@
             position: relative;
             margin-bottom: 20px;
         }
-        
+
         .slider-thumb {
             height: 30px;
             background-color: #4CAF50;
@@ -48,7 +48,7 @@
             left: 0;
             transition: width 0.2s ease-out;
         }
-        
+
         .slider-value {
             position: absolute;
             right: 10px;
@@ -56,14 +56,14 @@
             color: #333;
             font-weight: bold;
         }
-        
+
         .data-display {
             display: flex;
             justify-content: space-around;
             margin-top: 40px;
             flex-wrap: wrap;
         }
-        
+
         .data-card {
             background-color: #f9f9f9;
             padding: 15px;
@@ -73,24 +73,24 @@
             margin: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        
+
         .data-label {
             font-size: 14px;
             color: #666;
             margin-bottom: 5px;
         }
-        
+
         .data-value {
             font-size: 24px;
             font-weight: bold;
             color: #333;
         }
-        
+
         .data-unit {
             font-size: 14px;
             color: #666;
         }
-        
+
         .gauge {
             width: 200px;
             height: 100px;
@@ -98,7 +98,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .gauge-background {
             width: 200px;
             height: 200px;
@@ -108,7 +108,7 @@
             position: absolute;
             top: 0;
         }
-        
+
         .gauge-fill {
             width: 200px;
             height: 200px;
@@ -123,7 +123,7 @@
             transform: rotate(45deg);
             transition: transform 0.3s ease-out;
         }
-        
+
         .gauge-center {
             width: 20px;
             height: 20px;
@@ -134,7 +134,7 @@
             left: 90px;
             box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
-        
+
         .gauge-value {
             position: absolute;
             bottom: 10px;
@@ -148,33 +148,33 @@
 <body>
     <div class="container">
         <h1>Потенциометр ADS1115</h1>
-        
+
         <div class="gauge">
             <div class="gauge-background"></div>
             <div class="gauge-fill" id="gauge-fill"></div>
             <div class="gauge-center"></div>
             <div class="gauge-value" id="gauge-value">0%</div>
         </div>
-        
+
         <div class="slider-container">
             <div class="slider-track">
                 <div class="slider-thumb" id="slider-thumb"></div>
                 <div class="slider-value" id="slider-value">0%</div>
             </div>
         </div>
-        
+
         <div class="data-display">
             <div class="data-card">
                 <div class="data-label">Сырое значение</div>
                 <div class="data-value" id="raw-value">0</div>
             </div>
-            
+
             <div class="data-card">
                 <div class="data-label">Напряжение</div>
                 <div class="data-value" id="voltage">0.00</div>
                 <div class="data-unit">Вольт</div>
             </div>
-            
+
             <div class="data-card">
                 <div class="data-label">Процент</div>
                 <div class="data-value" id="percent">0</div>
@@ -193,20 +193,20 @@
                     document.getElementById('raw-value').textContent = data.raw_value;
                     document.getElementById('voltage').textContent = data.voltage.toFixed(3);
                     document.getElementById('percent').textContent = data.percent;
-                    
+
                     // Обновляем положение слайдера
                     const sliderThumb = document.getElementById('slider-thumb');
                     sliderThumb.style.width = data.percent + '%';
-                    
+
                     // Обновляем текст на слайдере
                     document.getElementById('slider-value').textContent = data.percent + '%';
-                    
+
                     // Обновляем круговой индикатор
                     const gaugeFill = document.getElementById('gauge-fill');
                     // Преобразуем процент (0-100) в угол поворота (45-315 градусов)
                     const rotationAngle = 45 + (data.percent * 2.7);
                     gaugeFill.style.transform = `rotate(${rotationAngle}deg)`;
-                    
+
                     // Обновляем значение на круговом индикаторе
                     document.getElementById('gauge-value').textContent = data.percent + '%';
                 })
@@ -214,10 +214,10 @@
                     console.error('Ошибка получения данных:', error);
                 });
         }
-        
+
         // Обновляем данные сразу при загрузке страницы
         updateADCData();
-        
+
         // Затем обновляем каждые 100 мс для плавного отображения
         setInterval(updateADCData, 100);
     </script>

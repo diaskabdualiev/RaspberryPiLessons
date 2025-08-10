@@ -56,7 +56,7 @@ lock = threading.Lock()
 # Функция для обработки нажатий клавиш
 def process_key_press(key):
     global current_input, keypad_history
-    
+
     with lock:
         if key == "*":  # Если нажата звездочка, очищаем ввод
             keypad_history.append(f"Ввод очищен: {current_input}")
@@ -67,7 +67,7 @@ def process_key_press(key):
         else:  # Обычная клавиша - добавляем к текущему вводу
             current_input += key
             keypad_history.append(f"Нажата клавиша: {key}")
-        
+
         # Ограничиваем историю до последних 20 записей
         if len(keypad_history) > 20:
             keypad_history = keypad_history[-20:]
@@ -75,19 +75,19 @@ def process_key_press(key):
 # Функция опроса клавиатуры в отдельном потоке
 def keypad_polling():
     global last_pressed
-    
+
     while True:
         # Проверяем нажатые клавиши
         pressed = keypad.pressed_keys
-        
+
         # Обрабатываем только новые нажатия
         for key in pressed:
             if key not in last_pressed:
                 process_key_press(key)
-        
+
         # Обновляем состояние последних нажатых клавиш
         last_pressed = pressed.copy()
-        
+
         # Небольшая задержка для стабилизации
         time.sleep(0.1)
 
@@ -113,6 +113,6 @@ def start_keypad_thread():
 if __name__ == '__main__':
     # Запускаем поток для опроса клавиатуры
     start_keypad_thread()
-    
+
     # Запускаем веб-сервер Flask
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)

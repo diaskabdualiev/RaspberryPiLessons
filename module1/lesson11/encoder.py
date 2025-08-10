@@ -1,54 +1,66 @@
+import time
 import board
 import digitalio
-import time
-from adafruit_debouncer import Debouncer
 
-# Настройка контактов энкодера
-pin_clk = digitalio.DigitalInOut(board.D17)  # CLK
-pin_dt = digitalio.DigitalInOut(board.D18)   # DT
-pin_clk.direction = digitalio.Direction.INPUT
-pin_dt.direction = digitalio.Direction.INPUT
-pin_clk.pull = digitalio.Pull.UP
-pin_dt.pull = digitalio.Pull.UP
+# Инициализация выводов энкодера
+# Выходы A и B энкодера подключены к GPIO17 и GPIO18 соответственно
+pin_a = digitalio.DigitalInOut(board.D17)
+pin_b = digitalio.DigitalInOut(board.D18)
+pin_a.direction = digitalio.Direction.INPUT
+pin_b.direction = digitalio.Direction.INPUT
+pin_a.pull = digitalio.Pull.UP  # Подтяжка к питанию
+pin_b.pull = digitalio.Pull.UP  # Подтяжка к питанию
 
-# Настройка кнопки с debouncer
-pin_sw = digitalio.DigitalInOut(board.D27)  # SW
-pin_sw.direction = digitalio.Direction.INPUT
-pin_sw.pull = digitalio.Pull.UP
-button = Debouncer(pin_sw)
+# Инициализация кнопки энкодера
+button = digitalio.DigitalInOut(board.D27)  # Кнопка на GPIO27
+button.direction = digitalio.Direction.INPUT
+button.pull = digitalio.Pull.UP  # Подтяжка к VCC (кнопка замыкает на GND)
 
 # Глобальные переменные
-global_counter = 0
-clk_last_state = pin_clk.value
+counter = 0
+button_state = False
+last_button_state = False
+last_a_state = pin_a.value
 
+# Главный цикл
 try:
-    print("Энкодер инициализирован. Начните вращать его...")
-    
+    print("Роторный энкодер: поворачивайте ручку или нажмите на нее")
+    print("Нажмите Ctrl+C для выхода")
+
     while True:
-        # Обработка энкодера
-        clk_state = pin_clk.value
-        dt_state = pin_dt.value
-        
-        # Если состояние CLK изменилось, значит произошло вращение
-        if clk_state != clk_last_state:
-            # Если DT отличается от CLK, значит вращение по часовой стрелке
-            if dt_state != clk_state:
-                global_counter += 1
+        # Считываем текущее состояние выводов энкодера
+        a_state = pin_a.value
+        b_state = pin_b.value
+
+        # Если состояние вывода A изменилось, значит произошло вращение
+        if a_state != last_a_state:
+            # Определяем направление вращения сравнивая состояния выводов A и B
+            if b_state != a_state:
+                direction = "по часовой стрелке"
+                counter += 1
             else:
-                global_counter -= 1
-                
-            print('Global Counter =', global_counter)
-            
-        clk_last_state = clk_state
-        
-        # Обработка кнопки с debounce
-        button.update()
-        if button.fell:  # Кнопка была нажата (изменение с HIGH на LOW из-за подтяжки)
-            global_counter = 0
-            print('Counter reset')
-        
-        # Небольшая задержка для стабильности
+                direction = "против часовой стрелки"
+                counter -= 1
+
+            # Выводим информацию
+            print(f"Направление: {direction}, Счетчик: {counter}")
+
+        # Обновляем последнее состояние вывода A
+        last_a_state = a_state
+
+        # Обработка нажатия кнопки
+        button_state = not button.value  # Инвертируем значение, так как кнопка подтянута к VCC
+
+        # Проверяем изменение состояния кнопки (обнаружение фронта)
+        if button_state and not last_button_state:
+            print("Кнопка нажата! Сброс счетчика.")
+            counter = 0
+
+        # Обновляем последнее состояние кнопки
+        last_button_state = button_state
+
+        # Небольшая задержка для стабилизации
         time.sleep(0.01)
-        
+
 except KeyboardInterrupt:
-    print("Программа остановлена")
+    print("\nПрограмма завершена.")

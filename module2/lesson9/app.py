@@ -25,10 +25,10 @@ def index():
 @app.route('/toggle_relay', methods=['POST'])
 def toggle_relay():
     global relay_state
-    
+
     data = request.get_json()
     state = data.get('state', False)
-    
+
     with relay_lock:
         if state:
             # Включаем реле (для инверсной логики значение FALSE)
@@ -38,10 +38,10 @@ def toggle_relay():
             # Выключаем реле (для инверсной логики значение TRUE)
             relay.value = True
             relay_state = False
-    
+
     return jsonify({
-        "status": "success", 
-        "state": relay_state, 
+        "status": "success",
+        "state": relay_state,
         "message": "Реле включено" if relay_state else "Реле выключено"
     })
 
@@ -51,11 +51,9 @@ def get_state():
 
 if __name__ == '__main__':
     try:
-        app.run(host='0.0.0.0',
-        port=5000,
-        debug=True,        # можно оставить отладку
-        use_reloader=False # но запрещаем второй запуск
-        )
+        # Запуск Flask приложения на всех интерфейсах (0.0.0.0)
+        # Чтобы можно было подключиться с других устройств в сети
+        app.run(host='0.0.0.0', port=5000, debug=True)
     finally:
         # При завершении программы отключаем реле (безопасное состояние)
         with relay_lock:

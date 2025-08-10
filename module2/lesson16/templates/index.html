@@ -128,7 +128,7 @@
 </head>
 <body>
     <h1>Управление сервоприводами</h1>
-    
+
     <div class="control-panel">
         <div class="form-group">
             <label for="channel">Выберите канал сервопривода:</label>
@@ -136,7 +136,7 @@
                 <!-- Каналы будут добавлены JavaScript -->
             </select>
         </div>
-        
+
         <div class="form-group">
             <label for="angle">Управление углом (0-180°):</label>
             <div class="slider-container">
@@ -144,12 +144,12 @@
                 <div class="slider-value" id="angle-value">90°</div>
             </div>
         </div>
-        
+
         <div class="servo-visual">
             <div class="servo-base"></div>
             <div class="servo-arm" id="servo-arm"></div>
         </div>
-        
+
         <div class="presets">
             <button class="preset-btn" data-angle="0">0°</button>
             <button class="preset-btn" data-angle="45">45°</button>
@@ -157,18 +157,18 @@
             <button class="preset-btn" data-angle="135">135°</button>
             <button class="preset-btn" data-angle="180">180°</button>
         </div>
-        
+
         <div class="button-group">
             <button id="reset-btn" class="reset-btn">Сбросить все сервоприводы</button>
         </div>
-        
+
         <div class="status" id="status"></div>
     </div>
-    
+
     <script>
         // Получаем максимальное количество сервоприводов из серверной конфигурации
         const maxServos = {{ max_servos }};
-        
+
         // DOM-элементы
         const channelSelect = document.getElementById('channel');
         const angleSlider = document.getElementById('angle');
@@ -177,7 +177,7 @@
         const resetBtn = document.getElementById('reset-btn');
         const statusDiv = document.getElementById('status');
         const presetBtns = document.querySelectorAll('.preset-btn');
-        
+
         // Заполняем выпадающий список каналов
         for (let i = 0; i < maxServos; i++) {
             const option = document.createElement('option');
@@ -185,12 +185,12 @@
             option.textContent = `Канал ${i}`;
             channelSelect.appendChild(option);
         }
-        
+
         // Обновление визуального представления сервопривода
         function updateServoVisual(angle) {
             servoArm.style.transform = `rotate(${angle}deg)`;
         }
-        
+
         // Функция для установки угла сервопривода
         function setServoAngle(channel, angle) {
             fetch('/set_angle', {
@@ -215,7 +215,7 @@
                 showStatus(`Ошибка: ${error}`, 'error');
             });
         }
-        
+
         // Функция для получения текущего угла сервопривода
         function getServoAngle(channel) {
             fetch(`/get_angle?channel=${channel}`)
@@ -232,7 +232,7 @@
                 console.error('Ошибка при получении угла:', error);
             });
         }
-        
+
         // Функция сброса всех сервоприводов
         function resetAllServos() {
             fetch('/reset', {
@@ -254,57 +254,57 @@
                 showStatus(`Ошибка: ${error}`, 'error');
             });
         }
-        
+
         // Функция для отображения статусных сообщений
         function showStatus(message, type) {
             statusDiv.textContent = message;
             statusDiv.className = `status ${type}`;
             statusDiv.style.display = 'block';
-            
+
             // Скрываем сообщение через 5 секунд
             setTimeout(() => {
                 statusDiv.style.display = 'none';
             }, 5000);
         }
-        
+
         // Обработчик изменения выбранного канала
         channelSelect.addEventListener('change', () => {
             getServoAngle(channelSelect.value);
         });
-        
+
         // Обработчик изменения значения слайдера
         angleSlider.addEventListener('input', () => {
             const angle = parseInt(angleSlider.value);
             angleValue.textContent = `${angle}°`;
             updateServoVisual(angle);
         });
-        
+
         // Обработчик отпускания слайдера (чтобы не посылать запросы каждую миллисекунду)
         angleSlider.addEventListener('change', () => {
             const channel = parseInt(channelSelect.value);
             const angle = parseInt(angleSlider.value);
             setServoAngle(channel, angle);
         });
-        
+
         // Обработчик нажатия на кнопку сброса
         resetBtn.addEventListener('click', resetAllServos);
-        
+
         // Обработчики для кнопок предустановленных углов
         presetBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const angle = parseInt(btn.dataset.angle);
                 const channel = parseInt(channelSelect.value);
-                
+
                 // Обновляем слайдер и отображение
                 angleSlider.value = angle;
                 angleValue.textContent = `${angle}°`;
                 updateServoVisual(angle);
-                
+
                 // Отправляем команду на сервер
                 setServoAngle(channel, angle);
             });
         });
-        
+
         // Инициализация - получаем текущий угол выбранного канала
         getServoAngle(channelSelect.value);
     </script>

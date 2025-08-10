@@ -20,9 +20,9 @@ current_color = "Выключен"
 
 # Функция для установки цвета RGB светодиода
 def set_color(r, g, b):
-    red_pin.value = r
-    green_pin.value = g
-    blue_pin.value = b
+    red_pin.value = not r
+    green_pin.value = not g
+    blue_pin.value = not b
 
 # Маршруты Flask
 @app.route('/')
@@ -32,7 +32,7 @@ def index():
 @app.route('/color/<color>')
 def set_led_color(color):
     global current_color
-    
+
     if color == 'red':
         set_color(True, False, False)
         current_color = "Красный"
@@ -45,13 +45,13 @@ def set_led_color(color):
     elif color == 'off':
         set_color(False, False, False)
         current_color = "Выключен"
-    
+
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
     # Выключаем светодиод при запуске
     set_color(False, False, False)
-    
+
     # Запускаем веб-сервер
     # Используем 0.0.0.0 чтобы сервер был доступен извне
     app.run(host='0.0.0.0', port=8080)

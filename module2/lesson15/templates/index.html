@@ -106,7 +106,7 @@
         // Создание куба
         const cubeSize = 4;
         const geometry = new THREE.BoxGeometry(cubeSize, cubeSize/4, cubeSize*1.5);
-        
+
         // Материалы для каждой грани с разными цветами
         const materials = [
             new THREE.MeshPhongMaterial({ color: 0xff0000 }), // правая сторона - красная
@@ -119,7 +119,7 @@
 
         const cube = new THREE.Mesh(geometry, materials);
         scene.add(cube);
-        
+
         // Создаем координатные оси для наглядности
         const axesHelper = new THREE.AxesHelper(10);
         scene.add(axesHelper);
@@ -151,16 +151,16 @@
                     document.getElementById('roll').textContent = data.angles.roll + '°';
                     document.getElementById('pitch').textContent = data.angles.pitch + '°';
                     document.getElementById('temp').textContent = data.temperature + ' °C';
-                    
+
                     // Обновляем положение куба
                     // Сбрасываем предыдущие вращения
                     cube.rotation.set(0, 0, 0);
-                    
+
                     // Применяем новые вращения
                     // Преобразуем градусы в радианы
                     const rollRad = data.angles.roll * Math.PI / 180;
                     const pitchRad = data.angles.pitch * Math.PI / 180;
-                    
+
                     // Применяем вращение с использованием матрицы поворота
                     // для сохранения правильного порядка вращения
                     cube.rotateZ(rollRad);  // Вращение вокруг оси Z (Roll)
@@ -174,10 +174,10 @@
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
-        
+
         // Запускаем анимацию
         animate();
-        
+
         // Обновляем данные каждые 100 мс
         setInterval(updateSensorData, 100);
     </script>

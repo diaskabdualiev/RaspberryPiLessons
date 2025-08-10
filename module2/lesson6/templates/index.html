@@ -71,27 +71,27 @@
 <body>
     <div class="container">
         <h1>Монитор температуры и влажности</h1>
-        
+
         <div class="readings">
             <div class="reading-card temperature">
                 <div class="reading-label">Температура</div>
                 <div class="reading-value">{{ temperature }}°C</div>
             </div>
-            
+
             <div class="reading-card humidity">
                 <div class="reading-label">Влажность</div>
                 <div class="reading-value">{{ humidity }}%</div>
             </div>
         </div>
-        
+
         <div class="status">
             <p>Статус: {{ status }}</p>
         </div>
-        
+
         <div class="time">
             <p>Последнее обновление: {{ last_update }}</p>
         </div>
-        
+
         <div class="info">
             <p>Страница обновляется автоматически каждые 10 секунд</p>
         </div>

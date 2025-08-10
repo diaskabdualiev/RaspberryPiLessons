@@ -48,7 +48,7 @@ current_input = ""  # Строка для сохранения введенны�
 # Функция для обработки нажатий клавиш
 def process_key_press(key):
     global current_input
-    
+
     if key == "*":  # Если нажата звездочка, очищаем ввод
         current_input = ""
         print("Ввод очищен")
@@ -64,25 +64,25 @@ def process_key_press(key):
 try:
     print("Матричная клавиатура 4x4 готова к работе!")
     print("'*' - очистить ввод, '#' - подтвердить ввод")
-    
+
     while True:
         # Проверяем нажатые клавиши
         pressed = keypad.pressed_keys
-        
+
         # Выводим отладочную информацию
         if pressed:
             print(f"Обнаружены нажатия: {pressed}")
-        
+
         # Обрабатываем только новые нажатия (фронт сигнала)
         for key in pressed:
             if key not in last_pressed:
                 process_key_press(key)
-        
+
         # Обновляем состояние последних нажатых клавиш
         last_pressed = pressed.copy()
-        
+
         # Небольшая задержка для стабилизации
         time.sleep(0.1)
-        
+
 except KeyboardInterrupt:
     print("\nПрограмма завершена.")

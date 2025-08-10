@@ -12,12 +12,12 @@
             text-align: center;
             background-color: #f5f5f5;
         }
-        
+
         h1 {
             margin-bottom: 20px;
             color: #333;
         }
-        
+
         .container {
             max-width: 600px;
             margin: 0 auto;
@@ -26,17 +26,17 @@
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        
+
         .matrix-container {
             margin: 20px auto;
             display: inline-block;
         }
-        
+
         .matrix-row {
             display: flex;
             justify-content: center;
         }
-        
+
         .matrix-cell {
             width: 40px;
             height: 40px;
@@ -46,19 +46,19 @@
             background-color: #eee;
             transition: background-color 0.2s;
         }
-        
+
         .matrix-cell.active {
             background-color: #ffcc00;
             box-shadow: 0 0 5px rgba(255, 204, 0, 0.8);
         }
-        
+
         .controls {
             margin: 20px 0;
             padding: 10px;
             background-color: #f0f0f0;
             border-radius: 5px;
         }
-        
+
         button {
             padding: 8px 15px;
             margin: 5px;
@@ -70,19 +70,19 @@
             font-size: 14px;
             transition: background-color 0.3s;
         }
-        
+
         button:hover {
             background-color: #45a049;
         }
-        
+
         .brightness-control {
             margin: 15px 0;
         }
-        
+
         input[type="range"] {
             width: 200px;
         }
-        
+
         .patterns {
             margin: 15px 0;
         }
@@ -91,22 +91,22 @@
 <body>
     <div class="container">
         <h1>Матрица MAX7219 (8x8)</h1>
-        
+
         <div class="matrix-container" id="matrix-grid">
             <!-- Матрица 8x8 будет создана при помощи JavaScript -->
         </div>
-        
+
         <div class="controls">
             <button id="clear-btn">Очистить</button>
             <button id="invert-btn">Инвертировать</button>
             <button id="random-btn">Случайно</button>
-            
+
             <div class="brightness-control">
                 <label for="brightness">Яркость:</label>
                 <input type="range" id="brightness" min="0" max="15" value="5">
                 <span id="brightness-value">5</span>
             </div>
-            
+
             <div class="patterns">
                 <p>Шаблоны:</p>
                 <button id="heart-pattern">Сердце</button>
@@ -114,25 +114,25 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         // Создаем матрицу 8x8 и добавляем в DOM
         const matrixGrid = document.getElementById('matrix-grid');
         const matrixState = Array(8).fill().map(() => Array(8).fill(0));
-        
+
         // Создаем DOM-элементы матрицы
         function createMatrix() {
             matrixGrid.innerHTML = '';
             for (let y = 0; y < 8; y++) {
                 const row = document.createElement('div');
                 row.className = 'matrix-row';
-                
+
                 for (let x = 0; x < 8; x++) {
                     const cell = document.createElement('div');
                     cell.className = 'matrix-cell';
                     cell.dataset.x = x;
                     cell.dataset.y = y;
-                    
+
                     // Добавляем обработчик клика
                     cell.addEventListener('click', () => toggleCell(x, y));
                     cell.addEventListener('mouseenter', (e) => {
@@ -141,22 +141,22 @@
                             toggleCell(x, y);
                         }
                     });
-                    
+
                     row.appendChild(cell);
                 }
-                
+
                 matrixGrid.appendChild(row);
             }
         }
-        
+
         // Функция включения/выключения ячейки
         function toggleCell(x, y) {
             // Инвертируем значение
             matrixState[y][x] = matrixState[y][x] === 0 ? 1 : 0;
-            
+
             // Обновляем вид ячейки
             updateMatrixDisplay();
-            
+
             // Отправляем на сервер
             fetch('/api/set_pixel', {
                 method: 'POST',
@@ -165,7 +165,7 @@
             })
             .catch(error => console.error('Ошибка:', error));
         }
-        
+
         // Функция обновления отображения матрицы
         function updateMatrixDisplay() {
             for (let y = 0; y < 8; y++) {
@@ -179,7 +179,7 @@
                 }
             }
         }
-        
+
         // Функция для получения текущего состояния с сервера
         function getMatrixState() {
             fetch('/api/get_matrix')
@@ -196,7 +196,7 @@
                 })
                 .catch(error => console.error('Ошибка:', error));
         }
-        
+
         // Очистка матрицы
         document.getElementById('clear-btn').addEventListener('click', () => {
             // Очищаем локальное состояние
@@ -206,7 +206,7 @@
                 }
             }
             updateMatrixDisplay();
-            
+
             // Отправляем на сервер
             fetch('/api/clear', {
                 method: 'POST',
@@ -214,7 +214,7 @@
             })
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         // Инвертирование матрицы
         document.getElementById('invert-btn').addEventListener('click', () => {
             // Инвертируем локальное состояние
@@ -224,7 +224,7 @@
                 }
             }
             updateMatrixDisplay();
-            
+
             // Отправляем на сервер
             fetch('/api/set_matrix', {
                 method: 'POST',
@@ -233,7 +233,7 @@
             })
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         // Случайное заполнение
         document.getElementById('random-btn').addEventListener('click', () => {
             // Заполняем локальное состояние случайно
@@ -243,7 +243,7 @@
                 }
             }
             updateMatrixDisplay();
-            
+
             // Отправляем на сервер
             fetch('/api/set_matrix', {
                 method: 'POST',
@@ -252,19 +252,19 @@
             })
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         // Изменение яркости
         const brightnessSlider = document.getElementById('brightness');
         const brightnessValue = document.getElementById('brightness-value');
-        
+
         brightnessSlider.addEventListener('input', () => {
             const brightness = parseInt(brightnessSlider.value);
             brightnessValue.textContent = brightness;
         });
-        
+
         brightnessSlider.addEventListener('change', () => {
             const brightness = parseInt(brightnessSlider.value);
-            
+
             // Отправляем на сервер
             fetch('/api/set_brightness', {
                 method: 'POST',
@@ -273,7 +273,7 @@
             })
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         // Показ предустановленных шаблонов
         document.getElementById('heart-pattern').addEventListener('click', () => {
             fetch('/api/show_pattern', {
@@ -284,7 +284,7 @@
             .then(() => getMatrixState())
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         document.getElementById('rectangle-pattern').addEventListener('click', () => {
             fetch('/api/show_pattern', {
                 method: 'POST',
@@ -294,7 +294,7 @@
             .then(() => getMatrixState())
             .catch(error => console.error('Ошибка:', error));
         });
-        
+
         // Инициализация при загрузке страницы
         window.addEventListener('load', () => {
             createMatrix();

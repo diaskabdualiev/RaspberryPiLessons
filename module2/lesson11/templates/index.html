@@ -3,131 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Роторный энкодер</title>
+    <title>Монитор энкодера</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-            text-align: center;
+        :root{
+            --bg:#0e1117;--fg:#e6edf3;--accent:#2f81f7;--danger:#dc3545;
+            font-family:system-ui,Arial,sans-serif;
         }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .counter-display {
-            font-size: 72px;
-            font-weight: bold;
-            margin: 30px 0;
-            font-family: monospace;
-            color: #2c3e50;
-        }
-        .button-state {
-            padding: 10px;
-            margin: 20px 0;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            line-height: 80px;
-            display: inline-block;
-            font-weight: bold;
-            color: white;
-        }
-        .button-pressed {
-            background-color: #e74c3c;
-        }
-        .button-released {
-            background-color: #3498db;
-        }
-        .direction {
-            font-size: 24px;
-            margin: 20px 0;
-            font-style: italic;
-            color: #7f8c8d;
-        }
-        .events-container {
-            margin-top: 30px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            text-align: left;
-        }
-        .events-list {
-            height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 10px;
-            background-color: white;
-        }
-        .event-item {
-            padding: 5px;
-            border-bottom: 1px solid #eee;
-        }
+        body{margin:0;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;min-height:100vh;}
+        h1{margin:0 0 1.5rem;font-size:1.6rem;text-align:center;}
+        .counter{font:700 4rem "Courier New",monospace;margin:1rem 0;}
+        .dir{font-size:2rem;height:2rem;margin:0.5rem 0;opacity:0.8;}
+        .btn-state{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;margin:1rem 0;}
+        .pressed{background:var(--danger);} .released{background:var(--accent);}
+        .events{width:100%;max-width:480px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:2rem;}
+        .events h3{margin:0 0 .5rem;font-size:1rem;}
+        .list{max-height:200px;overflow-y:auto;font-size:0.9rem;line-height:1.4}
+        .event{border-bottom:1px solid #30363d;padding:2px 0;}
     </style>
 </head>
 <body>
-    <h1>Мониторинг роторного энкодера</h1>
-    
-    <div class="counter-display" id="counter">0</div>
-    
-    <div class="direction" id="direction">Ожидание вращения...</div>
-    
-    <div class="button-state button-released" id="button-state">Кнопка</div>
-    
-    <div class="events-container">
-        <h3>История событий:</h3>
-        <div class="events-list" id="events-list"></div>
+    <h1>🎛️ Роторный энкодер Live</h1>
+    <div class="counter" id="counter">0</div>
+    <div class="dir" id="direction">—</div>
+    <div class="btn-state released" id="btn">Кнопка</div>
+
+    <div class="events">
+        <h3>История (12 посл. событий)</h3>
+        <div class="list" id="events"></div>
     </div>
 
-    <script>
-        // Функция для обновления данных с сервера
-        function updateEncoderData() {
-            fetch('/api/encoder-state')
-                .then(response => response.json())
-                .then(data => {
-                    // Обновляем счетчик
-                    document.getElementById('counter').textContent = data.counter;
-                    
-                    // Обновляем информацию о направлении
-                    if (data.last_direction) {
-                        document.getElementById('direction').textContent = 
-                            'Последнее направление: ' + data.last_direction;
-                    }
-                    
-                    // Обновляем состояние кнопки
-                    const buttonElement = document.getElementById('button-state');
-                    if (data.button_state) {
-                        buttonElement.textContent = 'НАЖАТА';
-                        buttonElement.className = 'button-state button-pressed';
-                    } else {
-                        buttonElement.textContent = 'Не нажата';
-                        buttonElement.className = 'button-state button-released';
-                    }
-                    
-                    // Обновляем список событий
-                    const eventsListElement = document.getElementById('events-list');
-                    eventsListElement.innerHTML = '';
-                    
-                    // Добавляем элементы событий в обратном порядке (новые сверху)
-                    data.events.slice().reverse().forEach(event => {
-                        const eventItem = document.createElement('div');
-                        eventItem.className = 'event-item';
-                        eventItem.textContent = event;
-                        eventsListElement.appendChild(eventItem);
-                    });
-                })
-                .catch(error => {
-                    console.error('Ошибка получения данных:', error);
-                });
-        }
-        
-        // Обновляем данные сразу при загрузке страницы
-        updateEncoderData();
-        
-        // Затем обновляем каждые 100 мс для быстрого отклика
-        setInterval(updateEncoderData, 100);
-    </script>
+<script>
+function update(){
+  fetch('/api/state')
+    .then(r=>r.json())
+    .then(d=>{
+        document.getElementById('counter').textContent=d.counter;
+        document.getElementById('direction').textContent=d.direction||'—';
+        const btn=document.getElementById('btn');
+        if(d.button){btn.className='btn-state pressed';btn.textContent='НАЖАТА'}
+        else{btn.className='btn-state released';btn.textContent='Не нажата'}
+        const wrap=document.getElementById('events');
+        wrap.innerHTML='';
+        d.events.slice().reverse().forEach(e=>{
+          const div=document.createElement('div');div.className='event';div.textContent=e;wrap.appendChild(div);
+        });
+    }).catch(err=>console.error(err));
+}
+update();setInterval(update,150);
+</script>
 </body>
 </html>

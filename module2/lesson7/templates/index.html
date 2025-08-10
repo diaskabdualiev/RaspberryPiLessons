@@ -79,30 +79,30 @@
 <body>
     <div class="container">
         <h1>Ультразвуковой датчик HC-SR04</h1>
-        
+
         <div class="distance-display">
             <div class="distance-value">
                 {{ distance }} <span class="distance-unit">см</span>
             </div>
-            
+
             <div class="progress-bar">
                 <div class="progress-fill" style="width: {{ percentage }}%"></div>
             </div>
-            
+
             <div class="min-max">
                 <span>0 см</span>
                 <span>350 см</span>
             </div>
         </div>
-        
+
         <div class="status">
             <p>Статус: {{ status }}</p>
         </div>
-        
+
         <div class="last-update">
             <p>Последнее обновление: {{ last_update }}</p>
         </div>
-        
+
         <div class="info">
             <p>Страница обновляется автоматически каждые 2 секунды</p>
             <p>Максимальная дальность датчика HC-SR04: около 350 см</p>

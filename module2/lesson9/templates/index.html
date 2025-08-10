@@ -58,14 +58,14 @@
 <body>
     <div class="container">
         <h1>Управление реле</h1>
-        
+
         <div class="status">
             <span class="status-indicator" id="status-indicator"></span>
             <span id="status-text">Загрузка...</span>
         </div>
-        
+
         <button id="toggle-button" class="toggle-button">Включить</button>
-        
+
         <div>
             <p>Статус реле: <span id="relay-status">Загрузка...</span></p>
         </div>
@@ -76,16 +76,16 @@
         const statusText = document.getElementById('status-text');
         const statusIndicator = document.getElementById('status-indicator');
         const relayStatus = document.getElementById('relay-status');
-        
+
         let currentState = false;
-        
+
         // Инициализация состояния при загрузке страницы
         window.onload = function() {
             fetchRelayState();
             // Обновление состояния каждые 5 секунд
             setInterval(fetchRelayState, 5000);
         };
-        
+
         // Получение текущего состояния реле
         function fetchRelayState() {
             fetch('/get_state')
@@ -98,11 +98,11 @@
                     relayStatus.textContent = 'Ошибка соединения';
                 });
         }
-        
+
         // Обновление интерфейса в зависимости от состояния
         function updateInterface(state) {
             currentState = state;
-            
+
             if (state) {
                 // Реле включено
                 toggleButton.textContent = 'Выключить';
@@ -123,11 +123,11 @@
                 relayStatus.textContent = 'Цепь разомкнута';
             }
         }
-        
+
         // Переключение состояния реле при нажатии на кнопку
         toggleButton.addEventListener('click', function() {
             const newState = !currentState;
-            
+
             fetch('/toggle_relay', {
                 method: 'POST',
                 headers: {

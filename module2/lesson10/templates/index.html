@@ -62,20 +62,19 @@
 </head>
 <body>
     <h1>Матричная клавиатура 4x4</h1>
-    
+
     <div class="container">
         <div class="panel">
             <h2>Текущий ввод:</h2>
             <div class="input-display" id="current-input">_</div>
             <p class="keypad-instruction">* - очистить ввод, # - подтвердить ввод</p>
         </div>
-        
+
         <div class="panel">
             <h2>История нажатий клавиш:</h2>
             <div class="history" id="history"></div>
         </div>
     </div>
-
     <script>
         // Функция для обновления данных с сервера
         function updateKeypadData() {
@@ -85,11 +84,11 @@
                     // Обновляем текущий ввод
                     const inputDisplay = document.getElementById('current-input');
                     inputDisplay.textContent = data.current_input || '_';
-                    
+
                     // Обновляем историю нажатий
                     const historyContainer = document.getElementById('history');
                     historyContainer.innerHTML = '';
-                    
+
                     // Добавляем элементы истории в обратном порядке (новые сверху)
                     data.history.slice().reverse().forEach(item => {
                         const historyItem = document.createElement('div');
@@ -102,10 +101,10 @@
                     console.error('Ошибка получения данных:', error);
                 });
         }
-        
+
         // Обновляем данные сразу при загрузке страницы
         updateKeypadData();
-        
+
         // Затем обновляем каждую секунду
         setInterval(updateKeypadData, 1000);
     </script>
