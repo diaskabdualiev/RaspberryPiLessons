@@ -22,7 +22,7 @@ while True:
         else:
             led.value = False
             print("Кнопка отпущена! Выключаем LED.")
-        
+
         time.sleep(0.1)  # Небольшая задержка для стабильности
     except KeyboardInterrupt:
         # Безопасное завершение при нажатии Ctrl+C
